@@ -5,6 +5,7 @@ const dbConnect = require('./config/db')
 const sectionRoutes = require('./routes/HomeSectionRoutes')
 const aboutRoutes = require('./routes/aboutSectionRoutes')
 const productRoutes = require('./routes/productPageRoutes')
+const contactRoute = require('./routes/contactPageRoutes')
 const path = require('path')
 
 
@@ -16,6 +17,7 @@ app.use(cors())
 app.use('/api/section', sectionRoutes)
 app.use('/api/about', aboutRoutes)
 app.use('/api/product-page', productRoutes )
+app.use('/api/contact-page', contactRoute)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const PORT = 5000
 app.listen(5000, () => console.log(`Server running on port ${PORT} `))
