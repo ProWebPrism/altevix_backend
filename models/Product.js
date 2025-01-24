@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Category = require('./Category')
 
 const productSchema = new mongoose.Schema({
   name: {
@@ -7,9 +8,9 @@ const productSchema = new mongoose.Schema({
     trim: true,
   },
   category: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId, // Reference to Category model
+    ref: 'Category', // Name of the referenced model
     required: true,
-    trim: true,
   },
   description: {
     type: String,
@@ -48,8 +49,8 @@ const productSchema = new mongoose.Schema({
         required: true,
         trim: true,
       },
-      features: {
-        type: [String], // Array of strings for technical features
+      feature: {
+        type: String, // Array of strings for technical features
         required: true,
       },
     },

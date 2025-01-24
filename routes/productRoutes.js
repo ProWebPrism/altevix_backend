@@ -23,5 +23,6 @@ router.delete('/:id', productController.deleteProduct);
 router.get('/', productController.listAllProducts);
 // Route to get a product by ID
 router.get('/:id', productController.getProductById);
+router.get('/category/:categoryId', productController.getProductsByCategory)
 
 module.exports = router;
