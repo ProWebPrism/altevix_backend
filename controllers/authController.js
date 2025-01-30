@@ -1,8 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User'); // Adjust the path if necessary
+const User = require('../models/User'); 
 
-// Secret key for signing JWTs (store this securely in environment variables)
+
 
 
 // Register Controller
@@ -65,6 +65,52 @@ const login = async (req, res) => {
         res.status(500).json({ message: 'Error logging in' });
     }
 };
+const getProfile = async (req, res) => {
+    try {
+        // Get userId from the JWT token
+        const userId = req.user;
 
-module.exports = { register, login };
+        // Fetch user details from the database
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Send the user information
+        res.status(200).json({ name: user.name, email: user.email, company: user.company });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error fetching user profile' });
+    }
+};
+
+// Update User Profile
+const updateProfile = async (req, res) => {
+    const { name, email } = req.body;
+
+    try {
+        // Get userId from the JWT token
+        const userId = req.user;
+
+        // Fetch the user and check if it exists
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update user details
+        user.name = name || user.name;
+        user.email = email || user.email;
+
+        // Save the updated user data
+        await user.save();
+
+        res.status(200).json({ message: 'Profile updated successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error updating profile' });
+    }
+};
+
+module.exports = { register, login, getProfile, updateProfile };
 

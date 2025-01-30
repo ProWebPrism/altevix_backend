@@ -27,9 +27,13 @@ exports.handleCallback = async (req, res) => {
         const { tokens } = await oauth2Client.getToken(code);
         oauth2Client.setCredentials(tokens);
         
+        
 
         // Save tokens in the session or database
-        req.session.tokens = tokens;
+        
+        res.cookie("access_token", tokens.access_token, { httpOnly: true, secure: true, sameSite: "Strict", maxAge: 7 * 24 * 60 * 60 * 1000 });
+        res.cookie("refresh_token", tokens.refresh_token, { httpOnly: true, secure: true, sameSite: "Strict", maxAge: 30 * 24 * 60 * 60 * 1000 });
+        
 
         // Redirect based on the originating page
         let redirectUrl;
@@ -104,4 +108,36 @@ exports.createEvent = async (req, res) => {
         res.status(500).json({ error: "Failed to create event" });
     }
 };
+// Fetch upcoming events from the user's Google Calendar
+exports.getUpcomingEvents = async (req, res) => {
+    try {
+        const accessToken = req.cookies.access_token;
+        const refreshToken = req.cookies.refresh_token;
+
+        if (!accessToken) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+
+        oauth2Client.setCredentials({ access_token: accessToken, refresh_token: refreshToken });
+
+        const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+        const events = await calendar.events.list({
+            calendarId: "primary",
+            timeMin: new Date().toISOString(),
+            maxResults: 10,
+            singleEvents: true,
+            orderBy: "startTime",
+        });
+        const filteredEvents = events.data.items.filter(event => {
+            return event.summary && event.summary.includes("Altevix");
+        });
+        
+
+        res.json({ events: filteredEvents });
+    } catch (err) {
+        console.error("Error fetching events:", err);
+        res.status(500).json({ error: "Failed to fetch events" });
+    }
+};
+
 

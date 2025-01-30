@@ -1,6 +1,7 @@
 const express = require('express')
 const dotenv = require('dotenv')
 const cors = require('cors')
+const cookieParser = require('cookie-parser')
 const dbConnect = require('./config/db')
 const sectionRoutes = require('./routes/HomeSectionRoutes')
 const aboutRoutes = require('./routes/aboutSectionRoutes')
@@ -21,19 +22,28 @@ const app = express()
 dotenv.config()
 dbConnect()
 app.use(express.json())
-app.use(cors())
-app.use(
+app.use(cors({
+    origin: 'http://localhost:5173', // Your frontend URL
+    credentials: true, // Allow cookies (sessions) to be sent
+  }));
+  app.use(
     session({
-        secret: process.env.SESSION_SECRET,
-        resave: false,
-        saveUninitialized: true,
+      secret: "your-secret-key", // Secret key to encrypt session
+      resave: false, // Don't resave session if not modified
+      saveUninitialized: true, // Save a session even if it's uninitialized
+      cookie: {
+        secure: false, // Set to true if using HTTPS
+        httpOnly: true, // Helps prevent XSS attacks
+        maxAge: 3600000, // Session expiration time (1 hour)
+      },
     })
-);
+  );
+  app.use(cookieParser());
 app.use('/api/auth', authRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/section', sectionRoutes)
 app.use('/api/about', aboutRoutes)
-app.use('/api/product-page', productPageRoutes )
+app.use('/api/product-page', productPageRoutes)
 app.use('/api/contact-page', contactPageRoute)
 app.use('/api/contact', contactRoutes)
 app.use('/api/product', productRoutes)

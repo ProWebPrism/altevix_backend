@@ -24,7 +24,7 @@ exports.addProduct = async (req, res) => {
       const parsedTechnicalFeatures = technicalFeatures
           ? JSON.parse(technicalFeatures).map((tf) => ({
               title: tf.title,
-              feature: tf.feature // Ensure 'features' is an array
+              feature: tf.feature 
           }))
           : '';
 
@@ -96,7 +96,7 @@ exports.updateProduct = async (req, res) => {
       const parsedTechnicalFeatures = technicalFeatures
           ? JSON.parse(technicalFeatures).map((tf) => ({
               title: tf.title,
-              features: Array.isArray(tf.feature) ? tf.feature : [tf.feature], // Ensure 'features' is an array
+              feature: tf.feature
           }))
           : existingProduct.technicalFeatures;
 
