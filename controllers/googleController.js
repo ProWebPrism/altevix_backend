@@ -139,5 +139,35 @@ exports.getUpcomingEvents = async (req, res) => {
         res.status(500).json({ error: "Failed to fetch events" });
     }
 };
+exports.getUpcomingEventsAdmin = async (req, res) => {
+    try {
+        const accessToken = process.env.BUSINESS_OWNER_ACCESS_TOKEN;
+        const refreshToken = process.env.BUSINESS_OWNER_REFRESH_TOKEN;
+
+        if (!accessToken) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+
+        oauth2Client.setCredentials({ access_token: accessToken, refresh_token: refreshToken });
+
+        const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+        const events = await calendar.events.list({
+            calendarId: "primary",
+            timeMin: new Date().toISOString(),
+            maxResults: 10,
+            singleEvents: true,
+            orderBy: "startTime",
+        });
+        const filteredEvents = events.data.items.filter(event => {
+            return event.summary && event.summary.includes("Altevix");
+        });
+        
+
+        res.json({ events: filteredEvents });
+    } catch (err) {
+        console.error("Error fetching events:", err);
+        res.status(500).json({ error: "Failed to fetch events" });
+    }
+};
 
 
