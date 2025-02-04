@@ -174,29 +174,32 @@ const getAdvantageSection = async (req, res) => {
 // Update Section
 const updateAdvantageSection = async (req, res) => {
   try {
-    // Validate the number of titles and images
-    const titles = req.body.cardtitle;  // Array of titles
-    const files = req.files;            // Array of files
+    const titles = req.body.cardtitle; // array of titles
+
     if (!Array.isArray(titles) || titles.length !== 8) {
       return res.status(400).json({ message: 'There must be exactly 8 titles.' });
     }
-
-    if (!files || files.length !== 8) {
-      return res.status(400).json({ message: 'There must be exactly 8 images uploaded.' });
+    
+    // Collect files using their unique keys.
+    const files = [];
+    for (let i = 0; i < 8; i++) {
+      const fileArr = req.files[`image${i}`];
+      if (!fileArr || fileArr.length === 0) {
+        return res.status(400).json({ message: `Image ${i} is missing.` });
+      }
+      files.push(fileArr[0]);
     }
 
-    // Build the cards array with title and image
     const cards = titles.map((title, index) => ({
-      image: files[index].path,  // The file path of the uploaded image
-      title,  // The title for the card
+      image: files[index].path,
+      title,
     }));
 
-    // Save the section (if it doesn't exist, create it)
+    // Save section to DB...
     let section = await Advantages.findOne();
     if (!section) {
       section = new Advantages();
     }
-
     section.cards = cards;
     await section.save();
 
@@ -206,6 +209,7 @@ const updateAdvantageSection = async (req, res) => {
     res.status(500).json({ message: 'Internal server error.' });
   }
 };
+
 
 const updateCustomMade = async (req, res) => {
   const image = req.file

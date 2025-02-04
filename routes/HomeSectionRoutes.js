@@ -35,7 +35,18 @@ router.put('/cards', upload.fields([
     {name:'card4img', maxCount:1}
 ]), updateCardsSection)
 router.get('/advantages', getAdvantageSection)
-router.put('/advantages', upload.array('images', 8),updateAdvantageSection)
+const cpUpload = upload.fields([
+    { name: 'image0', maxCount: 1 },
+    { name: 'image1', maxCount: 1 },
+    { name: 'image2', maxCount:1 },
+    { name: 'image3', maxCount: 1 },
+    { name: 'image4', maxCount: 1 },
+    { name: 'image5', maxCount:1 },
+    { name: 'image6', maxCount: 1 },
+    { name: 'image7', maxCount: 1 }
+  ]);
+  
+  router.put('/advantages', cpUpload, updateAdvantageSection);
 router.get('/custom', getCustom)
 router.put('/custom', upload.single('image'),updateCustomMade)
 router.get('/store', getStore)
